@@ -63,7 +63,7 @@ public class TaskService {
         user.getTasks().add(task);
         task.setAssignedUser(user);
         notification.setUser(user);
-        notificationRepositry.save(notification);
+        notificationRepositry.save(notification)    ;
         user.getNotifications().add(notification);
         userRepositry.save(user);
         taskRepository.save(task);

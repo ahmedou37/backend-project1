@@ -1,15 +1,26 @@
 package com.example.demo.service;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.example.demo.model.MyUserDetails;
 import com.example.demo.model.Notification;
 import com.example.demo.model.Task;
@@ -136,4 +147,23 @@ public class UserService {
         }
         return number;
     }
+
+    private Path imagePath;
+
+    public UserService(@Value("${file.upload-dir}") String imagePath) throws IOException{
+        this.imagePath=Paths.get(imagePath).toAbsolutePath().normalize();
+        Files.createDirectories(this.imagePath);
+    }
+    
+    public String saveImage(MultipartFile image) throws IOException {
+        String imageName=System.currentTimeMillis()+"_"+image.getOriginalFilename();
+        Path target =imagePath.resolve(imageName);
+        Files.copy(image.getInputStream(),target,StandardCopyOption.REPLACE_EXISTING);
+        return imageName;
+    }
+    public Resource loadImage(String imageName) throws MalformedURLException{
+        Path image=imagePath.resolve(imageName).normalize();
+        return new UrlResource(image.toUri());
+    }
 }
+

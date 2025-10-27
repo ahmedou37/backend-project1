@@ -20,6 +20,7 @@ public class User {
     private String name;
     private String password;
     private String role="USER";
+    private String imageName;
 
     @OneToMany(mappedBy ="assignedUser")
     private List<Task> tasks = new ArrayList<>();
@@ -79,6 +80,11 @@ public class User {
     public void setNotifications(List<Notification> notifications) {
         this.notifications = notifications;
     }
-
+     public String getImageName() {
+        return imageName;
+    }
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
+    }
     
 }
