@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "users")   
@@ -16,11 +17,13 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     private int id;
-
     private String name;
     private String password;
     private String role="USER";
-    private String imageName;
+    private String imageName;//in DB
+
+    @Transient
+    private String imageUrl; //not stored in DB — generated when returning dat
 
     @OneToMany(mappedBy ="assignedUser")
     private List<Task> tasks = new ArrayList<>();
@@ -85,6 +88,12 @@ public class User {
     }
     public void setImageName(String imageName) {
         this.imageName = imageName;
+    }
+    public String getImageUrl() {
+        return imageUrl;
+    }
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
     
 }

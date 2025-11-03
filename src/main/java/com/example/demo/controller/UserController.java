@@ -1,8 +1,7 @@
 package com.example.demo.controller;
 
-import java.time.LocalDate;
+import java.io.IOException;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
@@ -14,14 +13,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.multipart.MultipartFile;
 import com.example.demo.model.Notification;
 import com.example.demo.model.Task;
 import com.example.demo.model.User;
 import com.example.demo.repositry.TaskRepository;
 import com.example.demo.repositry.UserRepositry;
 import com.example.demo.service.UserService;
-
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
@@ -48,7 +46,7 @@ public class UserController {
     }
     
     @PostMapping
-    public User addUser(@RequestBody User user){
+    public User addUser(@RequestBody User user ) throws IOException{
         userService.addUser(user);
         return user;
     }
@@ -62,22 +60,16 @@ public class UserController {
     public List<Task> getTasks(Authentication authentication) {
          String name=authentication.getName();
         return userService.getTasks(name);
-        }
+    }
 
     @GetMapping("/tasks/{id}")
     public Task getTask(@PathVariable int id, Authentication authentication) {
-        // for(Task task:getTasks(authentication)){
-        //  if (task.getId()==id){
-        //     return task;
-        //  }
-        // }
-        // return null;
         String name = authentication.getName();
         return userService.getTask(name, id);
     }
 
     @GetMapping("/tasks/filter")
-    public List<Task> getTasksByStatus(@RequestParam String status, Authentication authentication,@RequestParam LocalDate deadline) {//(requiered)
+    public List<Task> getTasksByStatus(@RequestParam String status, Authentication authentication) {//(requiered)
         String name=authentication.getName();
         return userService.getTasksByStatus(name,status);
     }
@@ -102,9 +94,14 @@ public class UserController {
     }
     @GetMapping("tasks/notLenght")
     public int getNotLenght(Authentication authentication){
-         int notLenght=userService.getNotLenght(authentication.getName());
-         messagingTemplate.convertAndSend("/topic/notlenght",notLenght);
-         return notLenght;
+        int notLenght=userService.getNotLenght(authentication.getName());
+        messagingTemplate.convertAndSend("/topic/notlenght",notLenght);
+        return notLenght;
     }
     
+
+    @PostMapping("/images")
+    public String saveImage(@RequestParam MultipartFile image) throws IOException{
+        return userService.saveImage(image);
+    }
 }

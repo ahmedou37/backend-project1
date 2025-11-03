@@ -1,7 +1,6 @@
 package com.example.demo.service;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,8 +11,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -50,13 +47,17 @@ public class UserService {
     BCryptPasswordEncoder encoder= new BCryptPasswordEncoder(10);
 
 
-    public void addUser(User user){
+    public void addUser(User user) throws IOException{
+        //String imageName=saveImage(image);
+        user.setImageUrl("/images/"+user.getImageName());
         user.setPassword(encoder.encode(user.getPassword()));
         userRepositry.save(user);
     }
     
     public List<User> getUsers() {
-        return userRepositry.findAll();
+        List<User> users=userRepositry.findAll();
+        users.forEach(user->user.setImageUrl("/images/"+user.getImageName()));
+        return users;
     }
 
     public String verify(User user) {
@@ -156,14 +157,10 @@ public class UserService {
     }
     
     public String saveImage(MultipartFile image) throws IOException {
-        String imageName=System.currentTimeMillis()+"_"+image.getOriginalFilename();
+        String imageName=image.getOriginalFilename();
         Path target =imagePath.resolve(imageName);
         Files.copy(image.getInputStream(),target,StandardCopyOption.REPLACE_EXISTING);
         return imageName;
-    }
-    public Resource loadImage(String imageName) throws MalformedURLException{
-        Path image=imagePath.resolve(imageName).normalize();
-        return new UrlResource(image.toUri());
     }
 }
 
